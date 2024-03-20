@@ -27,7 +27,6 @@ with open('hwk3_Q1-5.pkl', 'rb') as f:
 
 ```
 
-\newpage
 
 ## Present a bar graph showing the proportion of states with a change in their cigarette tax in each year from 1970 to 1985. 
 
