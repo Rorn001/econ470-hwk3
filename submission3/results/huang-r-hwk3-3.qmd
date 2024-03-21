@@ -1,0 +1,276 @@
+---
+title: "huang-r-hwk3"
+author: Ron Huang
+data: \today{}
+
+format: 
+  pdf: 
+    toc: true
+    number-sections: true
+    colorlinks: true
+    highlight-style: atom-one-dark
+    code-hide: true
+    documentclass: article
+    fontsize: 12pt
+    geometry: margin=1in
+
+echo: false
+warning: false
+---
+
+
+
+# git@github.com:Rorn001/econ470-hwk3.git {.unnumbered}
+
+# Summarize the data
+
+```{python}
+import pickle
+
+with open('hwk3_Q1-5.pkl', 'rb') as f:
+   q1_fig, q2_fig, q3_fig, q3_table, q4_fig, q4_table, q5_fig = pickle.load(f)
+
+```
+
+
+## Present a bar graph showing the proportion of states with a change in their cigarette tax in each year from 1970 to 1985. 
+
+```{python} 
+import matplotlib.pyplot as plt
+q1_fig
+```
+
+
+\newpage
+
+## Plot on a single graph the average tax (in 2012 dollars) on cigarettes and the average price of a pack of cigarettes from 1970 to 2018.
+
+```{python}
+q2_fig
+```
+
+\newpage
+
+
+## Identify the 5 states with the highest increases in cigarette prices (in dollars) over the time period. Plot the average number of packs sold per capita for those states from 1970 to 2018.
+
+```{python}
+q3_table
+```
+
+```{python}
+q3_fig
+```
+
+\newpage
+
+
+## Identify the 5 states with the lowest increases in cigarette prices over the time period. Plot the average number of packs sold per capita for those states from 1970 to 2018.
+
+```{python}
+q4_table
+```
+
+```{python}
+q4_fig
+```
+
+\newpage
+
+
+## Compare the trends in sales from the 5 states with the highest price increases to those with the lowest price increases.
+
+```{python}
+q5_fig
+```
+
+The lowest 5 and highest 5 states have mostly same sales per capita in 1970. The lowest 5 states increased afterward but started to decrease at the end of 1970s. However, lowest 5 states consistently have higher sales per capita than the highest 5 states, while highest 5 states have a consistent decrease in sales per capita from 1970 to 2018. This is consistent with the law of demand, where the higher the price, the lower the quantity demanded.
+
+
+\newpage
+
+
+# Estimate ATEs
+
+## Focusing only on the time period from 1970 to 1990, regress log sales on log prices to estimate the price elasticity of demand over that period. Interpret your results.
+\begin{center}
+\begin{tabular}{lclc}
+\toprule
+\textbf{Dep. Variable:}       &    log\_sales    & \textbf{  R-squared:         } &     0.922   \\
+\textbf{Model:}               &       OLS        & \textbf{  Adj. R-squared:    } &     0.917   \\
+\textbf{Method:}              &  Least Squares   & \textbf{  F-statistic:       } &     166.5   \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lcccccc}
+                              & \textbf{coef} & \textbf{std err} & \textbf{t} & \textbf{P$> |$t$|$} & \textbf{[0.025} & \textbf{0.975]}  \\
+\midrule
+\textbf{log\_price}           &      -0.7417  &        0.044     &   -16.829  &         0.000        &       -0.828    &       -0.655     \\
+\textbf{const}                &       5.2905  &        0.040     &   131.505  &         0.000        &        5.212    &        5.369     \\
+\textbf{individaul dummies}   &          Yes  &                  &            &                      &                 &                  \\
+\textbf{time dummies}        &           Yes  &                  &            &                      &                 &                  \\
+\bottomrule
+\end{tabular}
+%\caption{OLS Regression Results}
+\end{center}
+Notes: \newline
+ [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+
+Applying OLS and states and time fixed effects, the price elasticity of demand is -0.7417. This means that a 10% increase in price will lead to a 7.417% decrease in sales, which is inelastic. However, there might be endogeneity in the price variable as we did not control for any other factors that might affect both sales and prices, so this estimate might not be causal.
+
+
+\newpage
+
+
+
+## Again limiting to 1970 to 1990, regress log sales on log prices using the total (federal and state) cigarette tax (in dollars) as an instrument for log prices. Interpret your results and compare your estimates to those without an instrument. Are they different? If so, why?
+
+\begin{center}
+\begin{tabular}{lclc}
+\toprule
+\textbf{Dep. Variable:}       &     log\_sales     & \textbf{  R-squared:         } &      0.9204      \\
+\textbf{Estimator:}           &      IV-2SLS       & \textbf{  Adj. R-squared:    } &      0.9147      \\
+\textbf{No. Observations:}    &        1071        & \textbf{  F-statistic:       } &    1.343e+04     \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lcccccc}
+                              & \textbf{Parameter} & \textbf{Std. Err.} & \textbf{T-stat} & \textbf{P-value} & \textbf{Lower CI} & \textbf{Upper CI}  \\
+\midrule
+\textbf{const}                &       5.4621       &       0.0643       &      84.952     &      0.0000      &       5.3361      &       5.5882       \\
+\textbf{log\_price}           &      -0.9484       &       0.0744       &     -12.755     &      0.0000      &      -1.0942      &      -0.8027       \\
+\textbf{individual dummies}   &       Yes          &                    &                 &                 &                   &                   \\
+\textbf{time dummies}         &       Yes          &                    &                 &                 &                   &                   \\
+\bottomrule
+\end{tabular}
+%\caption{IV-2SLS Estimation Summary}
+\end{center}
+
+Endogenous: log_price \newline
+ Instruments: log_tax \newline
+ Robust Covariance (Heteroskedastic) \newline
+ Debiased: False
+
+
+The IV regression estimates the second stage coefficient to be -0.9484, which is more elastic than the OLS estimate of -0.7417. This tends to be more causal if tax is exogenous and satisfies the exclusion restriction because it could recover the local treatment effect of log price on log sales of those whose price is positively affected by tax. If tax is a valid instrument, this difference between the results of OLS and IV suggests that there do exists some omitted variables that correlates with price and sales. In particular, it may increase with price while decrease with sales. 
+
+
+\newpage
+
+
+## Show the first stage and reduced-form results from the instrument.
+
+\begin{table}[H]
+\caption{OLS, Reduced Form, and First without FE 1970-1990}
+\label{}
+\begin{center}
+\begin{tabular}{lllll}
+\hline
+                 & OLS      & IV       & First Form & Reduced Form  \\
+\hline
+const            & 5.43***  & 5.42***  & 0.84***    & 4.75***       \\
+                 & (0.03)   & (0.02)   & (0.01)     & (0.01)        \\
+log\_price       & -0.81*** & -0.79*** &            &               \\
+                 & (0.04)   & (0.07)   &            &               \\
+log\_tax         &          &          & 0.26***    & -0.21***      \\
+                 &          &          & (0.01)     & (0.02)        \\
+Individual dummies & No    & No       & No         & No            \\
+Time dummies     & No       & No       & No         & No            \\
+R-squared        & 0.29     & 0.58     & 0.29       & 0.08          \\
+R-squared Adj.   & 0.29     & 0.58     & 0.29       & 0.08          \\
+No. observations & 1071     & 1071     & 1071       & 1071          \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[H]
+\caption{OLS, Reduced Form, and First Form Results with FE 1970-1990}
+\label{}
+\begin{center}
+\begin{tabular}{lllll}
+\hline
+                 & OLS      & IV       & First Form & Reduced Form  \\
+\hline
+const            & 5.29***  & 5.462***  & 0.81***    & 4.70***       \\
+                 & (0.04)   & (0.06)   & (0.01)     & (0.02)        \\
+log\_price       & -0.74*** & -0.95*** &            &               \\
+                 & (0.04)   & (0.07)   &            &               \\
+log\_tax         &          &          & 0.36***    & -0.34***      \\
+                 &          &          & (0.01)     & (0.02)        \\
+Individual dummies & Yes    & Yes      & Yes        & Yes           \\
+Time dummies     & Yes      & Yes      & Yes        & Yes           \\
+R-squared        & 0.92     & 0.92     & 0.96       & 0.92          \\
+R-squared Adj.   & 0.92     & 0.92     & 0.96       & 0.92          \\
+No. observations & 1071     & 1071     & 1071       & 1071          \\
+\hline
+\end{tabular}
+\end{center}
+Standard errors in parentheses. \* p<.1, ** p<.05, ***p<.01
+\end{table}
+We can see from the first stage that the instrument is at least strong and relevant, as it significantly increases with price, and the significance level and signs are robust to the inclusion of fixed effects. However, the relative magnitude of the coefficients are different with and without fixed effects. In particular, the price elasticity of demand in IV regressino is more elastic with fixed effects than without fixed effect. In OLS, the price elasticity is less elastic with fixed effects than without fixed effects. 
+
+\newpage
+
+
+## Repeat questions 1-3 focusing on the period from 1991 to 2015.
+
+\begin{table}[H]
+\caption{ OLS, Reduced Form, and First without FE 1991-2015}
+\label{}
+\begin{center}
+\begin{tabular}{lllll}
+\hline
+                 & OLS      & IV       & First Form & Reduced Form  \\
+\hline
+const            & 5.66***  & 5.88***  & 1.32***    & 4.37***       \\
+                 & (0.04)   & (0.04)   & (0.01)     & (0.01)        \\
+log\_price       & -0.996*** & -1.15*** &            &               \\
+                 & (0.02)   & (0.03)   &            &               \\
+log\_tax         &          &          & 0.51***    & -0.59***      \\
+                 &          &          & (0.01)     & (0.01)        \\
+Individual dummies & No    & No       & No         & No            \\
+Time dummies     & No       & No       & No         & No            \\
+R-squared        & 0.56     & 0.56     & 0.81       & 0.61          \\
+R-squared Adj.   & 0.56     & 0.56     & 0.81       & 0.61          \\
+No. observations & 1275     & 1275     & 1275       & 1275          \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\begin{table}[H]
+\caption{OLS, Reduced Form, and First With FE 1991-2015}
+\label{}
+\begin{center}
+\begin{tabular}{lllll}
+\hline
+                 & OLS      & IV       & First Form & Reduced Form  \\
+\hline
+const            & 5.62***  & 5.63***  & 1.18***    & 4.61***       \\
+                 & (0.05)   & (0.06)   & (0.01)     & (0.03)        \\
+log\_price       & -0.86*** & -0.87*** &            &               \\
+                 & (0.05)   & (0.05)   &            &               \\
+log\_tax         &          &          & 0.33***    & -0.29***      \\
+                 &          &          & (0.01)     & (0.02)        \\
+individual dummies & Yes   & Yes      & Yes        & Yes           \\
+time dummies     & Yes      & Yes      & Yes        & Yes           \\
+R-squared        & 0.94     & 0.93     & 0.98       & 0.93          \\
+R-squared Adj.   & 0.93     & 0.93     & 0.98       & 0.93          \\
+No. observations & 1275     & 1275     & 1275       & 1275          \\
+\hline
+\end{tabular}
+\end{center}
+Standard errors in parentheses. \* p<.1, ** p<.05, ***p<.01
+\end{table}
+
+Still, intruments are strong and relevant, and significance and signs of the coefficients are robust, but this time the price elasticity of demand in both IV regression and OLS is less elastic with fixed effects than without fixed effects. What's more the difference between the estimates of elasticity in IV and OLS is smaller than the difference in the previous time slot. This might be because there are less mediating factors between price and sales within this time period so that OLS is less biased, or the validity of tax as an instrument is less compelling for reasons such as that it is less exogeneous, which makes the IV estimate more biased. The inelasticity of demand, though, is relatively consistent with time and the inclusion of fixed effects, except for the IV regression without fixed effects in the 1991-2015 period, which is -1.15. 
+
+\newpage
+
+
+
+## Compare your elasticity estimates from 1970-1990 versus those from 1991-2015. Are they different? If so, why?
+
+The inclusion of fixed effects causes discrepancies in the results. When we do not consider individual and time fixed effects, the price elasticity becomes more elastic for 1991-2015 than 1970-1990, from -0.79 to -1.15 using IV regression. It is hard to argue that this result is valid without considering the fixed effects since we are using panel data; ignoring the panel structure and the structure of the error term will lead to omitted variable bias. The importance of fixed effects is also shown in the value of R-squared, which increases significantly when we include fixed effects dummies, from about 0.5 to 0.9. This suggests that the state and time fixed explain a lot of the variation in the change of sales. Only if the fixed effects are not correlated with the variables of interest, we can arguably ignore them. 
+When considering the fixed effects, compared to the 1970-1990 period, the price elasticity of demand is more elastic in the 1991-2015 period, but they are both inelastic. The estimate for the 1991-2015 period is -0.87, while the estimate for the 1970-1990 period is -0.95. There are might be a few reasons for this decrease in the magnitude of inelasticity. First, there might still be some omitted variables that are correlated with price and sales, and they might have changed over time and across individuals. In other words, there are some uncontrolled confounding variables that are correlated with the idiosyncratic error term. Second, we can see previously that the tax burden is increasing over time, so the expectation of increasing in the real price of cigs might exclude consumers who are more sensitive to its price, left those who are the most addicted to cigarettes and least responsive to price changes.  
